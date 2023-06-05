@@ -36,7 +36,7 @@ df=df.dropna()
 print("df shape after na cut: ", df.shape)
 
 df=df.drop(columns=['Date', 'AreaCode'])
-functions.write_df(df, 'H:\\Datasets\\','UK-HPI-full-file-2022-01_clean.csv' )
+functions.write_df(df, 'H:\\Datasets\\','UK-HPI-full-file-2022-01_clean.csv')
 
 
 

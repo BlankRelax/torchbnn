@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
 from sklearn.feature_selection import r_regression
+from sklearn.preprocessing import MinMaxScaler
 
 
 def read_data(directory, filename):
@@ -30,6 +31,12 @@ def drop(df):
     return df
 def count_na(df):
     return df.dropna.sum
+
+def min_max_scale(df, columns):
+    sc=MinMaxScaler()
+    sc.fit(df) #o-1 by defult
+    return pd.DataFrame(sc.transform(df), columns=columns)
+
 
 
 def plot_scat(df, x, axis):  # takes feature list as input
@@ -276,13 +283,13 @@ class remove_outliers():
         self.mean = np.mean(self.data_array)
         self.std = np.std(self.data_array)
 
-    def find_outliers(self):
+    def find_outliers(self,sd):
         for i in range(self.data_array.shape[0]):
             if self.data_array[i] > self.mean + \
-                    (3 * self.std) or self.data_array[i] < self.mean - (3 * self.std):
+                    (sd * self.std) or self.data_array[i] < self.mean - (sd * self.std):
                 print(self.data_array[i])
                 self.data_array[i] = self.mean
                 self.df[self.colname] = self.data_array
 
-    def write_new(self):
-        write_df(self.df, r'H:\Datasets', '\\clean_MaternalHealthRisk.csv')
+    def write_new(self,directory,filename):
+        write_df(self.df, directory, filename)
