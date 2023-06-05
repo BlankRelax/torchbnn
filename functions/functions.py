@@ -8,6 +8,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
+from sklearn.feature_selection import r_regression
 
 
 def read_data(directory, filename):
@@ -127,6 +128,9 @@ def to_categorical(df, columns):
         df[col] = pd.Categorical(df[col])
         df[col] = df[col].cat.codes
     return df
+
+def get_pearson_coeff(df, target):
+    return r_regression(df, df[target])
 
 
 def fit_rf(n_est, X_train, y_train):
