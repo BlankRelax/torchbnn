@@ -39,12 +39,12 @@ def min_max_scale(df, columns):
 
 
 
-def plot_scat(df, x, axis):  # takes feature list as input
+def plot_scat(df, x,target, axis):  # takes feature list as input
     a, b = axis
     df = df
     for i in range(len(x) - 1):
-        plt.scatter(df[x[i]], df['RiskLevel'])
-        plt.ylabel('Risk Level(target)')
+        plt.scatter(df[x[i]], df[target])
+        plt.ylabel(target)
         plt.xlabel(x[i])
         plt.subplot(a, b, i + 1)
     plt.show()
