@@ -4,12 +4,32 @@ from matplotlib import pyplot as plt
 
 def plot_history(history):
     x=history.history.keys()
-    for i in range(0,len(x)):
-        plt.plot(history.history[i])
+    print(len(x))
+    print(history.history)
+    for key in x:
+        plt.plot(history.history[key])
         plt.title('training metric(epoch)')
-        plt.ylabel(x[i])
+        plt.ylabel(key)
         plt.xlabel('epoch')
         plt.legend(x, loc='lower right')
+    plt.show()
+def plot_accuracy(X_test,y_test, y_hat): #get accuracy of MLP regression for one column of X_test
+    delta = []
+    deltapc = []
+    for i in range(y_test.shape[0]):
+        thedelta = y_hat[i] - y_test[i]
+        delta.append(thedelta)
+        if (y_test[i]):
+            deltapc.append(thedelta / y_test[i])
+        else:
+            deltapc.append(0.0)
+
+    plt.scatter(X_test, delta)
+    plt.scatter(X_test, deltapc)
+    plt.legend(['$\Delta_y$', '$\Delta_y$ (fraction)'], loc='upper right')
+    plt.title('model prediction accuracy')
+    plt.ylabel('$\widehat{y}-y$')
+    plt.xlabel('$x$')
     plt.show()
 
 
