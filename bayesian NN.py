@@ -26,14 +26,17 @@ print('Train has {} instances '.format(len(train)))
 print('Test has {} instances'.format(len(test)))
 
 
-train_loader=DataLoader(train, batch_size=32, shuffle=True, drop_last=True)
-test_loader=DataLoader(test, batch_size=32, shuffle=False, drop_last=True)
+train_loader=DataLoader(train, batch_size=1024, shuffle=True, drop_last=True)
+test_loader=DataLoader(test, batch_size=1024, shuffle=False, drop_last=True)
 
 
 
-train_iter = iter(train_loader)
-features, target = train_iter.__next__()
-print(features, target)
+# train_iter = iter(train_loader)
+# features, target = train_iter.__next__()
+# print(features, target)
+
+
+
 
 def return_bnn(input, output, layers):
     model = nn.Sequential()
@@ -56,33 +59,44 @@ kl_weight = 0.01
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 
-# i=1
-# for step in range(3000):
-#     tic=time.perf_counter()
-#     pre = model(torch.tensor(X_train,dtype=torch.float32))
-#     mse = mse_loss(torch.flatten(pre), torch.tensor(y_train,dtype=torch.float32))
-#     kl = kl_loss(model)
-#     cost = mse + kl_weight * kl
-#
-#     optimizer.zero_grad()
-#     cost.backward()
-#     optimizer.step()
-#     toc=time.perf_counter()
-#     print("Run "+str(i)+" complete in "+str(round(toc - tic,3))+" seconds")
-#     i+=1
+def do_one_epoch():
+    i = 1
+    for i, data in enumerate(train_loader):
+        features, target = data
+        # print(features, target)
+        tic = time.perf_counter()
+        pre = model(torch.tensor(features, dtype=torch.float32)) # predictions
+        mse = mse_loss(torch.flatten(pre), torch.tensor(target, dtype=torch.float32))
+        kl = kl_loss(model)
+        cost = mse + kl_weight * kl
 
-#print('- MSE : %2.2f, KL : %2.2f' % (mse.item(), kl.item()))
-#
-# models_result = np.array([model(torch.tensor(X_test,dtype=torch.float32)).data.numpy() for k in range(10000)])
-# models_result = models_result[:,:,0]
-# models_result = models_result.T
-# mean_values = np.array([models_result[i].mean() for i in range(len(models_result))])
-# std_values = np.array([models_result[i].std() for i in range(len(models_result))])
-#
-# plt.scatter(X_test[:,4], mean_values, label='Prediction')
-# plt.scatter(X_test[:,4], y_test, label='Ground Truth')
-# plt.legend()
-# plt.show()
+        optimizer.zero_grad()
+        cost.backward()
+        optimizer.step()
+        toc = time.perf_counter()
+        #print("Batch " + str(i) + " complete in " + str(round(toc - tic, 3)) + " seconds")
+        i += 1
+
+    print('- MSE : %2.2f, KL : %2.2f' % (mse.item(), kl.item()))
+EPOCHS=100
+for epoch in range(EPOCHS+1):
+    do_one_epoch()
+    print('Epoch {} completed'.format(epoch))
+
+
+
+
+
+models_result = np.array([model(torch.tensor(X_test,dtype=torch.float32)).data.numpy() for k in range(100)])
+models_result = models_result[:,:,0]
+models_result = models_result.T
+mean_values = np.array([models_result[i].mean() for i in range(len(models_result))])
+std_values = np.array([models_result[i].std() for i in range(len(models_result))])
+
+plt.scatter(X_test[:,4], mean_values, label='Prediction')
+plt.scatter(X_test[:,4], y_test, label='Ground Truth')
+plt.legend()
+plt.show()
 
 # plt.figure(figsize=(10,8))
 # plt.plot(X_test.data.numpy(),mean_values,color='navy',lw=3,label='Predicted Mean Model')
