@@ -20,15 +20,20 @@ X_test=torch.tensor(np.array(X_test))
 y_test=torch.tensor(np.array(y_test))
 
 #print([X_train,y_train])
+train = [(X_train[i],y_train[i]) for i in range(len(X_train))]
+test = [(X_test[i],y_test[i]) for i in range(len(X_test))]
+print('Train has {} instances '.format(len(train)))
+print('Test has {} instances'.format(len(test)))
 
-train_loader=DataLoader([X_train,y_train], batch_size=32, shuffle=True, drop_last=True)
-test_loader=DataLoader([X_test, y_test], batch_size=32, shuffle=False, drop_last=True)
 
-print('Train has {} instances '.format(len(X_train)))
-print('Test has {} instances'.format(len(X_test)))
+train_loader=DataLoader(train, batch_size=32, shuffle=True, drop_last=True)
+test_loader=DataLoader(test, batch_size=32, shuffle=False, drop_last=True)
+
+
 
 train_iter = iter(train_loader)
 features, target = train_iter.__next__()
+print(features, target)
 
 def return_bnn(input, output, layers):
     model = nn.Sequential()
