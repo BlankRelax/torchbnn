@@ -9,25 +9,26 @@ import torchbnn as bnn
 from matplotlib import pyplot as plt
 import time
 
+
 df=functions.read_data('H:\\Datasets\\','UK-HPI-full-file-2022-01_clean.csv')
 columns=functions.get_columns(df)
 X_train, X_test, y_train, y_test=functions.split_data(df, 'AveragePrice',test_size=0.2)
-train_df=pd.DataFrame(X_train, columns=columns[1:])
-train_df['AveragePrice']=y_train
-test_df=pd.DataFrame(X_test, columns=columns[1:])
-test_df['AveragePrice']=y_test
 
-df=DataLoader(df,batch_size=32)
-train_loader=DataLoader(train_df, batch_size=32, shuffle=True)
-test_loader=DataLoader(test_df, batch_size=32, shuffle=False)
-print('Train has {} instances: '.format(len(train_df)))
-print('Test has {} instances'.format(len(test_df)))
+X_train=torch.tensor(np.array(X_train))
+y_train=torch.tensor(np.array(y_train))
+X_test=torch.tensor(np.array(X_test))
+y_test=torch.tensor(np.array(y_test))
+
+#print([X_train,y_train])
+
+train_loader=DataLoader([X_train,y_train], batch_size=32, shuffle=True, drop_last=True)
+test_loader=DataLoader([X_test, y_test], batch_size=32, shuffle=False, drop_last=True)
+
+print('Train has {} instances '.format(len(X_train)))
+print('Test has {} instances'.format(len(X_test)))
 
 train_iter = iter(train_loader)
-X_train, y_train=train_iter.__next__()
-print(X_train)
-
-
+features, target = train_iter.__next__()
 
 def return_bnn(input, output, layers):
     model = nn.Sequential()
@@ -42,20 +43,13 @@ def return_bnn(input, output, layers):
     model.append(end)
     return model
 
-
-
-# model = nn.Sequential(
-#     bnn.BayesLinear(prior_mu=0, prior_sigma=0.1, in_features=6, out_features=1024),
-#     nn.ReLU(),
-#     bnn.BayesLinear(prior_mu=0, prior_sigma=0.1, in_features=1024, out_features=1),
-# )
-
 model=return_bnn(6,1,[1024])
 print(model)
 mse_loss = nn.MSELoss()
 kl_loss = bnn.BKLLoss(reduction='mean', last_layer_only=False)
 kl_weight = 0.01
 optimizer = optim.Adam(model.parameters(), lr=0.001)
+
 
 # i=1
 # for step in range(3000):
@@ -71,8 +65,8 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 #     toc=time.perf_counter()
 #     print("Run "+str(i)+" complete in "+str(round(toc - tic,3))+" seconds")
 #     i+=1
-#
-# print('- MSE : %2.2f, KL : %2.2f' % (mse.item(), kl.item()))
+
+#print('- MSE : %2.2f, KL : %2.2f' % (mse.item(), kl.item()))
 #
 # models_result = np.array([model(torch.tensor(X_test,dtype=torch.float32)).data.numpy() for k in range(10000)])
 # models_result = models_result[:,:,0]

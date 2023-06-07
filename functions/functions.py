@@ -189,7 +189,7 @@ def predict_bdt(clf, X_test, y_test):
 
 def split_data(df, target, test_size):
     X_train, X_test, y_train, y_test = train_test_split(
-        df.drop(columns=[target]), df[target], test_size=test_size)
+        df.drop(columns=[target]), df[target], test_size=test_size, shuffle=False)
     return X_train, X_test, y_train, y_test
 
 
