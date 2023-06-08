@@ -48,19 +48,39 @@ def return_bnn(input, output, layers):
 model=return_bnn(inputs,outputs,[1024])
 model.load_state_dict(torch.load('model_20230608_133807'))
 
-def make_predictions(num_pred):
+def make_predictions(num_pred,y_test_shape, plot):
+    model_result_a =np.empty(shape=[num_pred, y_test_shape])
     for i in range(num_pred):
         models_result = np.array([model(torch.tensor(X_test, dtype=torch.float32)).data.numpy() for k in range(100)])
         models_result = models_result[:, :, 0]
         models_result = models_result.T
         mean_values = np.array([models_result[i].mean() for i in range(len(models_result))])
+        np.append(model_result_a, mean_values)
         std_values = np.array([models_result[i].std() for i in range(len(models_result))])
-        plt.scatter(X_test[:, 4], mean_values, label='Prediction')
-        plt.scatter(X_test[:, 4], y_test, label='Ground Truth')
-        plt.subplot(3, 3, i + 1)
-    plt.legend()
-    plt.show()
-make_predictions(9)
+        if plot:
+            plt.scatter(X_test[:, 4], mean_values, label='Prediction')
+            plt.scatter(X_test[:, 4], y_test, label='Ground Truth')
+            plt.subplot(3, 3, i + 1)
+    if plot:
+        plt.legend()
+        plt.show()
+
+
+    return model_result_a
+predictions=make_predictions(4,y_test.shape[0],True)
+print(predictions.shape)
+
+
+def get_model_accuracy(predictions,y_test): #takes an array of seperate predictions on the test data
+    for prediction in predictions:
+        delta=prediction[0]-np.array(y_test)[0]
+        mse=(np.square(delta).sum()/prediction.shape[0])
+        acc=delta/np.array(y_test)[0].sum()
+        print('mse is {}'.format(mse))
+        print('acc is {}'.format(acc))
+get_model_accuracy(predictions,y_test)
+
+
 
 
 
