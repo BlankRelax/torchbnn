@@ -19,6 +19,9 @@ df=functions.read_data('H:\\Datasets\\','UK-HPI-full-file-2022-01_clean.csv')
 columns=functions.get_columns(df)
 X_train, X_test, y_train, y_test=functions.split_data(df, 'AveragePrice',test_size=0.2)
 
+inputs=X_train.shape[1]
+outputs=len(columns)-inputs
+
 X_train=torch.tensor(np.array(X_train))
 y_train=torch.tensor(np.array(y_train))
 X_test=torch.tensor(np.array(X_test))
@@ -34,14 +37,9 @@ batch_size=1024
 train_loader=DataLoader(train, batch_size=1024, shuffle=True, drop_last=True)
 test_loader=DataLoader(test, batch_size=1024, shuffle=False, drop_last=True)
 
-
-
 # train_iter = iter(train_loader)
 # features, target = train_iter.__next__()
 # print(features, target)
-
-
-
 
 def return_bnn(input, output, layers):
     model = nn.Sequential()
@@ -56,7 +54,7 @@ def return_bnn(input, output, layers):
     model.append(end)
     return model
 
-model=return_bnn(6,1,[1024])
+model=return_bnn(inputs,outputs,[1024])
 print(model)
 mse_loss = nn.MSELoss()
 kl_loss = bnn.BKLLoss(reduction='mean', last_layer_only=False)
@@ -96,7 +94,7 @@ timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 writer = SummaryWriter('runs/AveragePrice{}'.format(timestamp))
 epoch_number = 0
 
-EPOCHS=40
+EPOCHS=50
 for epoch in range(EPOCHS+1):
     do_one_epoch(epoch+1, writer )
     print('Epoch {} completed'.format(epoch))

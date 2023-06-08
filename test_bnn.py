@@ -17,6 +17,9 @@ df=functions.read_data('H:\\Datasets\\','UK-HPI-full-file-2022-01_clean.csv')
 columns=functions.get_columns(df)
 X_train, X_test, y_train, y_test=functions.split_data(df, 'AveragePrice',test_size=0.2)
 
+inputs=X_train.shape[1]
+outputs=len(columns)-inputs
+
 
 X_test=torch.tensor(np.array(X_test))
 y_test=torch.tensor(np.array(y_test))
@@ -42,19 +45,24 @@ def return_bnn(input, output, layers):
     model.append(end)
     return model
 
-model=return_bnn(6,1,[1024])
-model.load_state_dict(torch.load('model_20230607_183057'))
-for i in range(9):
-    models_result = np.array([model(torch.tensor(X_test, dtype=torch.float32)).data.numpy() for k in range(100)])
-    models_result = models_result[:, :, 0]
-    models_result = models_result.T
-    mean_values = np.array([models_result[i].mean() for i in range(len(models_result))])
-    std_values = np.array([models_result[i].std() for i in range(len(models_result))])
-    plt.scatter(X_test[:, 4], mean_values, label='Prediction')
-    plt.scatter(X_test[:, 4], y_test, label='Ground Truth')
-    plt.subplot(3, 3, i+1 )
-plt.legend()
-plt.show()
+model=return_bnn(inputs,outputs,[1024])
+model.load_state_dict(torch.load('model_20230608_133807'))
+
+def make_predictions(num_pred):
+    for i in range(num_pred):
+        models_result = np.array([model(torch.tensor(X_test, dtype=torch.float32)).data.numpy() for k in range(100)])
+        models_result = models_result[:, :, 0]
+        models_result = models_result.T
+        mean_values = np.array([models_result[i].mean() for i in range(len(models_result))])
+        std_values = np.array([models_result[i].std() for i in range(len(models_result))])
+        plt.scatter(X_test[:, 4], mean_values, label='Prediction')
+        plt.scatter(X_test[:, 4], y_test, label='Ground Truth')
+        plt.subplot(3, 3, i + 1)
+    plt.legend()
+    plt.show()
+make_predictions(9)
+
+
 
 
 
